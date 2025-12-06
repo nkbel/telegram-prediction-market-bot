@@ -14,21 +14,12 @@ function EventsList({ userId }) {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const url = `${API_URL}/api/events`;
-      console.log('Fetching events from:', url);
-      const response = await fetch(url);
-      console.log('Response status:', response.status);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Failed to fetch events: ${response.status} ${errorText}`);
-      }
+      const response = await fetch(`${API_URL}/api/events`);
+      if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
-      console.log('Events loaded:', data.length);
       setEvents(data);
       setError(null);
     } catch (err) {
-      console.error('Fetch error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -38,73 +29,83 @@ function EventsList({ userId }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-white text-xl">Loading events...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-text-secondary text-lg">Loading events...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-500 text-white p-4 rounded-lg">
-        Error: {error}
+      <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-modal text-center">
+        <p className="font-semibold mb-2">Error loading events</p>
+        <p className="text-sm">{error}</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-4xl font-bold text-white mb-8 text-center">
-        📊 Active Markets
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-text-primary mb-2">
+          Active Markets
+        </h1>
+        <p className="text-text-secondary">Make predictions on everyday events</p>
+      </div>
 
       {events.length === 0 ? (
-        <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 text-center text-white">
-          <p className="text-xl">No active events at the moment.</p>
-          <p className="text-sm mt-2">Check back later for new predictions!</p>
+        <div className="bg-surface rounded-card card-shadow p-12 text-center">
+          <div className="text-6xl mb-4">📊</div>
+          <p className="text-xl font-semibold text-text-primary mb-2">No active events</p>
+          <p className="text-text-secondary">Check back later for new predictions!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {events.map((event) => (
             <Link
               key={event.id}
               to={`/event/${event.id}`}
-              className="bg-white/10 backdrop-blur-md rounded-lg p-6 hover:bg-white/20 transition-all duration-200 border border-white/20"
+              className="bg-surface rounded-card card-shadow p-5 hover-lift border border-primary/5 hover:border-primary/20 transition-smooth group"
             >
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-semibold text-white flex-1">
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-text-primary mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                   {event.question}
                 </h2>
+                {event.description && (
+                  <p className="text-text-secondary text-sm line-clamp-2">
+                    {event.description}
+                  </p>
+                )}
               </div>
 
-              {event.description && (
-                <p className="text-white/80 text-sm mb-4 line-clamp-2">
-                  {event.description}
-                </p>
-              )}
-
               <div className="mb-4">
-                <div className="flex justify-between text-sm text-white/90 mb-2">
-                  <span>YES</span>
-                  <span>NO</span>
+                <div className="flex justify-between text-xs font-semibold text-text-secondary mb-2">
+                  <span className="text-primary">YES</span>
+                  <span className="text-accent-no-from">NO</span>
                 </div>
-                <div className="w-full bg-white/20 rounded-full h-3 relative overflow-hidden">
+                <div className="w-full bg-surface-light rounded-full h-2.5 relative overflow-hidden mb-2">
                   <div
-                    className="bg-green-500 h-full transition-all duration-300"
+                    className="gradient-yes h-full transition-all duration-300 rounded-full"
                     style={{ width: `${event.yesPricePercent}%` }}
                   />
                   <div
-                    className="bg-red-500 h-full absolute top-0 right-0 transition-all duration-300"
+                    className="gradient-no h-full absolute top-0 right-0 transition-all duration-300 rounded-full"
                     style={{ width: `${event.noPricePercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-white/70 mt-1">
-                  <span>{event.yesPricePercent}%</span>
-                  <span>{event.noPricePercent}%</span>
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-primary">{event.yesPricePercent}%</span>
+                  <span className="text-accent-no-from">{event.noPricePercent}%</span>
                 </div>
               </div>
 
-              <div className="text-xs text-white/60">
-                Resolves: {event.resolves_at ? new Date(event.resolves_at).toLocaleDateString() : 'TBD'}
+              <div className="flex items-center gap-2 text-xs text-text-secondary pt-3 border-t border-surface-light">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Resolves: {event.resolves_at ? new Date(event.resolves_at).toLocaleDateString() : 'TBD'}</span>
               </div>
             </Link>
           ))}

@@ -94,15 +94,18 @@ function EventDetail({ userId }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-white text-xl">Loading event...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-text-secondary text-lg">Loading event...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !event) {
     return (
-      <div className="bg-red-500 text-white p-4 rounded-lg">
-        Error: {error || 'Event not found'}
+      <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-modal">
+        <p className="font-semibold">Error: {error || 'Event not found'}</p>
       </div>
     );
   }
@@ -118,95 +121,109 @@ function EventDetail({ userId }) {
     <div className="max-w-4xl mx-auto">
       <button
         onClick={() => navigate('/')}
-        className="text-white hover:text-gray-200 mb-4 flex items-center"
+        className="text-text-secondary hover:text-primary mb-6 flex items-center gap-2 transition-colors group"
       >
-        ← Back to Markets
+        <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="font-medium">Back to Markets</span>
       </button>
 
-      <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 border border-white/20">
-        <h1 className="text-3xl font-bold text-white mb-4">{event.question}</h1>
+      <div className="bg-surface rounded-card card-shadow p-6 mb-6">
+        <h1 className="text-2xl font-bold text-text-primary mb-3">{event.question}</h1>
         
         {event.description && (
-          <p className="text-white/90 mb-6">{event.description}</p>
+          <p className="text-text-secondary mb-6 leading-relaxed">{event.description}</p>
         )}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white/5 rounded-lg p-4">
-            <div className="text-white/70 text-sm mb-2">Resolves</div>
-            <div className="text-white font-semibold">
+          <div className="bg-surface-light rounded-input p-4">
+            <div className="text-text-secondary text-sm mb-1 font-medium">Resolves</div>
+            <div className="text-text-primary font-semibold flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               {event.resolves_at ? new Date(event.resolves_at).toLocaleDateString() : 'TBD'}
             </div>
           </div>
-          <div className="bg-white/5 rounded-lg p-4">
-            <div className="text-white/70 text-sm mb-2">Status</div>
-            <div className="text-white font-semibold capitalize">{event.status}</div>
+          <div className="bg-surface-light rounded-input p-4">
+            <div className="text-text-secondary text-sm mb-1 font-medium">Status</div>
+            <div className="text-text-primary font-semibold capitalize flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${event.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+              {event.status}
+            </div>
           </div>
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Current Market Prices</h2>
-          <div className="bg-white/5 rounded-lg p-6">
-            <div className="flex justify-between text-sm text-white/90 mb-2">
-              <span className="font-semibold">YES</span>
-              <span className="font-semibold">NO</span>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-text-primary mb-4">Current Market Prices</h2>
+          <div className="bg-surface-light rounded-card p-5">
+            <div className="flex justify-between text-sm font-semibold text-text-secondary mb-3">
+              <span className="text-primary">YES</span>
+              <span className="text-accent-no-from">NO</span>
             </div>
-            <div className="w-full bg-white/20 rounded-full h-6 relative overflow-hidden mb-2">
+            <div className="w-full bg-surface rounded-full h-4 relative overflow-hidden mb-3">
               <div
-                className="bg-green-500 h-full transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold"
+                className="gradient-yes h-full transition-all duration-300 flex items-center justify-end pr-2"
                 style={{ width: `${event.yesPricePercent}%` }}
               >
-                {event.yesPricePercent}%
+                {parseFloat(event.yesPricePercent) > 10 && (
+                  <span className="text-white text-xs font-bold">{event.yesPricePercent}%</span>
+                )}
               </div>
               <div
-                className="bg-red-500 h-full absolute top-0 right-0 transition-all duration-300 flex items-center justify-center text-white text-xs font-semibold"
+                className="gradient-no h-full absolute top-0 right-0 transition-all duration-300 flex items-center justify-start pl-2"
                 style={{ width: `${event.noPricePercent}%` }}
               >
-                {event.noPricePercent}%
+                {parseFloat(event.noPricePercent) > 10 && (
+                  <span className="text-white text-xs font-bold">{event.noPricePercent}%</span>
+                )}
               </div>
             </div>
-            <div className="flex justify-between text-white/70 text-sm">
-              <span>Price: {event.yesPrice.toFixed(4)}</span>
-              <span>Price: {event.noPrice.toFixed(4)}</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-text-secondary">Price: <span className="font-semibold text-primary">{event.yesPrice.toFixed(4)}</span></span>
+              <span className="text-text-secondary">Price: <span className="font-semibold text-accent-no-from">{event.noPrice.toFixed(4)}</span></span>
             </div>
           </div>
         </div>
 
         {event.status === 'active' && (
-          <div className="bg-white/5 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Place a Bet</h2>
-            <div className="text-white/70 mb-4">
-              Your Balance: <span className="text-white font-semibold">{userBalance.toFixed(2)} credits</span>
+          <div className="bg-surface-light rounded-card p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">Place a Bet</h2>
+            <div className="bg-surface rounded-input p-4 mb-6">
+              <div className="text-text-secondary text-sm mb-1">Your Balance</div>
+              <div className="text-2xl font-bold text-primary">{userBalance.toFixed(2)} <span className="text-lg text-text-secondary">credits</span></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <button
                 onClick={() => setSelectedOutcome('yes')}
-                className={`p-4 rounded-lg font-semibold transition-all ${
+                className={`p-5 rounded-button font-semibold transition-smooth hover-lift ${
                   selectedOutcome === 'yes'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-white/10 text-white hover:bg-white/20'
+                    ? 'gradient-yes text-white shadow-blue-lg scale-105'
+                    : 'bg-surface border-2 border-primary/20 text-primary hover:border-primary hover:bg-surface-light'
                 }`}
               >
-                Buy YES
-                <div className="text-sm mt-1">Price: {event.yesPrice.toFixed(4)}</div>
+                <div className="text-lg mb-1">Buy YES</div>
+                <div className="text-sm opacity-90">Price: {event.yesPrice.toFixed(4)}</div>
               </button>
               <button
                 onClick={() => setSelectedOutcome('no')}
-                className={`p-4 rounded-lg font-semibold transition-all ${
+                className={`p-5 rounded-button font-semibold transition-smooth hover-lift ${
                   selectedOutcome === 'no'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white/10 text-white hover:bg-white/20'
+                    ? 'gradient-no text-white shadow-blue-lg scale-105'
+                    : 'bg-surface border-2 border-accent-no-from/20 text-accent-no-from hover:border-accent-no-from hover:bg-red-50'
                 }`}
               >
-                Buy NO
-                <div className="text-sm mt-1">Price: {event.noPrice.toFixed(4)}</div>
+                <div className="text-lg mb-1">Buy NO</div>
+                <div className="text-sm opacity-90">Price: {event.noPrice.toFixed(4)}</div>
               </button>
             </div>
 
             {selectedOutcome && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-white/90 mb-2">
+                  <label className="block text-text-primary font-medium mb-2">
                     Bet Amount (credits)
                   </label>
                   <input
@@ -214,7 +231,7 @@ function EventDetail({ userId }) {
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
                     placeholder="Enter amount"
-                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    className="w-full px-4 py-3 rounded-input bg-surface border-2 border-primary/20 text-text-primary placeholder-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-smooth"
                     min="0.01"
                     step="0.01"
                     max={userBalance}
@@ -222,20 +239,21 @@ function EventDetail({ userId }) {
                 </div>
 
                 {betAmount && parseFloat(betAmount) > 0 && (
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <div className="text-white/70 text-sm mb-2">
-                      You will buy: <span className="text-white font-semibold">
-                        {selectedOutcome === 'yes' ? sharesYes : sharesNo} shares
-                      </span>
-                    </div>
-                    <div className="text-white/70 text-sm">
-                      Cost: <span className="text-white font-semibold">{betAmount} credits</span>
-                    </div>
-                    <div className="text-white/70 text-sm mt-2">
-                      If you win, you'll receive: <span className="text-white font-semibold">
-                        {selectedOutcome === 'yes' ? sharesYes : sharesNo} credits
-                      </span>
-                      <span className="text-white/50 text-xs ml-2">(1 credit per share)</span>
+                  <div className="bg-surface rounded-input p-5 border-2 border-primary/10">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-text-secondary">You will buy:</span>
+                        <span className="font-semibold text-text-primary">{selectedOutcome === 'yes' ? sharesYes : sharesNo} shares</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-secondary">Cost:</span>
+                        <span className="font-semibold text-text-primary">{betAmount} credits</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t border-surface-light">
+                        <span className="text-text-secondary">If you win:</span>
+                        <span className="font-semibold text-primary">{selectedOutcome === 'yes' ? sharesYes : sharesNo} credits</span>
+                      </div>
+                      <div className="text-xs text-text-light mt-1">(1 credit per share)</div>
                     </div>
                   </div>
                 )}
@@ -243,9 +261,16 @@ function EventDetail({ userId }) {
                 <button
                   onClick={handleBet}
                   disabled={betting || !betAmount || parseFloat(betAmount) <= 0}
-                  className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all"
+                  className="w-full gradient-yes text-white font-semibold py-4 px-6 rounded-button transition-smooth hover-lift disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-blue-md"
                 >
-                  {betting ? 'Placing Bet...' : 'Confirm Bet'}
+                  {betting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Placing Bet...
+                    </span>
+                  ) : (
+                    'Confirm Bet'
+                  )}
                 </button>
               </div>
             )}
@@ -253,13 +278,18 @@ function EventDetail({ userId }) {
         )}
 
         {event.status === 'resolved' && (
-          <div className="bg-white/5 rounded-lg p-6">
-            <div className="text-xl font-semibold text-white mb-2">
-              Event Resolved: <span className={event.outcome === 'yes' ? 'text-green-400' : 'text-red-400'}>
+          <div className="bg-surface-light rounded-card p-6 border-2 border-primary/20">
+            <div className="text-xl font-semibold text-text-primary mb-2 flex items-center gap-2">
+              Event Resolved:
+              <span className={`px-4 py-2 rounded-button font-bold ${
+                event.outcome === 'yes' 
+                  ? 'gradient-yes text-white' 
+                  : 'gradient-no text-white'
+              }`}>
                 {event.outcome.toUpperCase()}
               </span>
             </div>
-            <p className="text-white/70">Payouts have been distributed to winners.</p>
+            <p className="text-text-secondary">Payouts have been distributed to winners.</p>
           </div>
         )}
       </div>
@@ -268,4 +298,3 @@ function EventDetail({ userId }) {
 }
 
 export default EventDetail;
-
