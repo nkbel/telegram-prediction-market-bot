@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function Profile({ userId }) {
   const [user, setUser] = useState(null);
@@ -16,7 +17,7 @@ function Profile({ userId }) {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`/api/user/${userId}`);
+      const response = await fetch(`${API_URL}/api/user/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const data = await response.json();
       setUser(data);
@@ -28,7 +29,7 @@ function Profile({ userId }) {
   const fetchBets = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/user/${userId}/bets`);
+      const response = await fetch(`${API_URL}/api/user/${userId}/bets`);
       if (!response.ok) throw new Error('Failed to fetch bets');
       const data = await response.json();
       setBets(data);

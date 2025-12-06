@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function EventDetail({ userId }) {
   const { eventId } = useParams();
@@ -22,7 +23,7 @@ function EventDetail({ userId }) {
   const fetchEvent = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/events/${eventId}`);
+      const response = await fetch(`${API_URL}/api/events/${eventId}`);
       if (!response.ok) throw new Error('Failed to fetch event');
       const data = await response.json();
       setEvent(data);
@@ -36,7 +37,7 @@ function EventDetail({ userId }) {
 
   const fetchUserBalance = async () => {
     try {
-      const response = await fetch(`/api/user/${userId}`);
+      const response = await fetch(`${API_URL}/api/user/${userId}`);
       if (response.ok) {
         const user = await response.json();
         setUserBalance(user.balance);
@@ -59,7 +60,7 @@ function EventDetail({ userId }) {
 
     setBetting(true);
     try {
-      const response = await fetch('/api/bets', {
+      const response = await fetch(`${API_URL}/api/bets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

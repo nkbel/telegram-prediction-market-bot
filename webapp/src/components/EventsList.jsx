@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config';
 
 function EventsList({ userId }) {
   const [events, setEvents] = useState([]);
@@ -13,12 +14,21 @@ function EventsList({ userId }) {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/events');
-      if (!response.ok) throw new Error('Failed to fetch events');
+      const url = `${API_URL}/api/events`;
+      console.log('Fetching events from:', url);
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to fetch events: ${response.status} ${errorText}`);
+      }
       const data = await response.json();
+      console.log('Events loaded:', data.length);
       setEvents(data);
       setError(null);
     } catch (err) {
+      console.error('Fetch error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
